@@ -66,7 +66,8 @@ float     gAngle         = 0.0f,
           sparkDuration = 0.2f; // how long the sparkles sparkle :D
 
 bool      gBlueSparkleShown = false,
-          gRedSparkleShown = false;
+          gRedSparkleShown = false,
+          gRoundStarted = false;
 
 //variables for textures
 Texture2D gBGTexture;
@@ -177,6 +178,13 @@ void processInput()
     if (IsKeyDown(KEY_UP)) gRedWandMovement.y = -1.0f;
     if (IsKeyDown(KEY_DOWN)) gRedWandMovement.y =  1.0f;
 
+    if (IsKeyPressed(KEY_SPACE) && !gRoundStarted){
+        gRoundStarted = true;
+        // randomize ball to left or right
+        gBallMovement = { (GetRandomValue(0, 1) == 0 ? -1.0f : 1.0f), -0.5f };
+        gBallMovement = Vector2Normalize(gBallMovement);
+    }
+
     if (IsKeyPressed(KEY_Q) || WindowShouldClose()) gAppStatus = TERMINATED;
 }
 
@@ -212,10 +220,7 @@ void update()
     gRedWandPosition.y  += gRedWandMovement.y  * wandSpeed * deltaTime;
 
     // ball movement
-    if (Vector2Length(gBallMovement) == 0.0f) {
-        gBallMovement = { -1.0f, 0.5f }; // mvoe left at start
-        gBallMovement = Vector2Normalize(gBallMovement);
-    }
+    if (!gRoundStarted) return;
 
     float ballSpeed = 400.0f;
     gBallPosition.x += gBallMovement.x * ballSpeed * deltaTime;
@@ -231,6 +236,7 @@ void update()
         gBallMovement = { 0.0f, 0.0f };
         gBlueSparkleShown = false;
         gRedSparkleShown = false;
+        gRoundStarted = false;
     }
 
     // collide with blue wand
